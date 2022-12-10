@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "node src/main.js"
+    "test": "node src/main.js",
+    "deploy": "node src/deployCommands.js"
   },
   "repository": {
     "type": "git",
