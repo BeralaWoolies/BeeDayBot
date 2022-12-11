@@ -1,7 +1,8 @@
 const { Client, GatewayIntentBits, Events, Collection } = require('discord.js');
-const database = require('./src/database.js');
-const CronJob = require('cron').CronJob;
 const fs = require('node:fs');
+const CronJob = require('cron').CronJob;
+const database = require('./src/database.js');
+const { hasBirthdayToday, announceBirthday } = require('./src/helpers/birthdayHelpers.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -67,15 +68,14 @@ const job = new CronJob(
         const now = new Date();
         const data = database.getData();
         const celebrants = data.filter(user =>
-            user.month === now.getMonth() && user.day === now.getDate()
+            hasBirthdayToday(now, user.month, user.day)
         );
 
         if (celebrants.length === 0) {
             return;
         }
         celebrants.forEach(celebrant => {
-            const channel = client.channels.cache.get(process.env.CHANNEL_ID);
-            channel.send(`🥳 HAPPY BIRTHDAY TO <@${celebrant.id}>! 🥳`);
+            announceBirthday(client, celebrant.id);
         });
     },
     null,

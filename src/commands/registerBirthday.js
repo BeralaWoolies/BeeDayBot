@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { validDayAndMonth, formatDate } = require('../helpers/dateHelpers.js');
+const { hasBirthdayToday, announceBirthday } = require('../helpers/birthdayHelpers.js');
 const database = require(`../database.js`);
 
 module.exports = {
@@ -23,13 +24,22 @@ module.exports = {
         }
 
         const digits = birthday.split('/').map(digit => parseInt(digit));
+        const birthdayMonth = digits[1] - 1;
+        const birthdayDay = digits[0];
         const data = database.getData();
         data.push({
             id: interaction.user.id,
-            month: digits[1] - 1,
-            day: digits[0],
+            month: birthdayMonth,
+            day: birthdayDay,
         });
         database.setData(data);
+
+        const now = new Date();
+        // make sure users setting bday on the day of their bday should also be
+        // announced
+        if (hasBirthdayToday(now, birthdayMonth, birthdayDay)) {
+            announceBirthday(interaction.client, interaction.user.id);
+        }
 
         const date = formatDate(digits[1] - 1, digits[0]);
         await interaction.reply({
