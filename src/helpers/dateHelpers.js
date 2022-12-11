@@ -1,4 +1,4 @@
-const format = require('date-fns/format')
+const format = require('date-fns/format');
 
 const daysInAMonthLookUp = {
     January: 31,
@@ -13,7 +13,7 @@ const daysInAMonthLookUp = {
     October: 31,
     November: 30,
     December: 31,
-}
+};
 
 exports.validDayAndMonth = function(date) {
     // Check if date is in the following format: dd/mm
@@ -32,12 +32,11 @@ exports.validDayAndMonth = function(date) {
         return true;
     }
     return false;
-}
+};
 
 exports.formatDate = function(month, day) {
     return format(new Date(getCurrentYear(), month, day), "do 'of' LLLL");
-
-}
+};
 
 function getCurrentYear() {
     return new Date().getFullYear();

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, CommandInteractionOptionResolver } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { validDayAndMonth, formatDate } = require('../helpers/dateHelpers.js');
 const database = require(`../database.js`);
 

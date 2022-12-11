@@ -7,4 +7,4 @@ module.exports = {
     setData: (data) => {
         database = data;
     }
-}
+};

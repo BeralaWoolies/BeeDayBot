@@ -13,9 +13,9 @@ module.exports = {
         const filteredUsers = data.filter(user => user.id === discordId);
         if (filteredUsers.length === 0) {
             await interaction.reply({
-				content: 'You have not set your birthday, use the /addbirthday command to set your birthday',
-				ephemeral: true,
-			});
+                content: 'You have not set your birthday, use the /addbirthday command to set your birthday',
+                ephemeral: true,
+            });
             return;
         }
 

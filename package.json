@@ -4,8 +4,9 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "node main.js",
-    "deploy": "node deployCommands.js"
+    "start": "node main.js",
+    "deploy": "node deployCommands.js",
+    "lint": "eslint src main.js deployCommands.js"
   },
   "repository": {
     "type": "git",
@@ -18,8 +19,12 @@
   },
   "homepage": "https://github.com/BeralaHub/discordBot#readme",
   "dependencies": {
+    "cron": "^2.1.0",
     "date-fns": "^2.29.3",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.29.0"
   }
 }
