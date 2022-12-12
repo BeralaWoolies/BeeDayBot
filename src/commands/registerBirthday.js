@@ -1,6 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { validDayAndMonth, formatDate } = require('../helpers/dateHelpers.js');
-const { hasBirthdayToday, announceBirthday } = require('../helpers/birthdayHelpers.js');
+const {
+    validDayAndMonth,
+    formatDate
+} = require('../helpers/dateHelpers.js');
+const {
+    hasBirthdayToday,
+    announceBirthday,
+    hasBirthdayRegistered
+} = require('../helpers/birthdayHelpers.js');
 const database = require(`../database.js`);
 
 module.exports = {
@@ -18,6 +25,13 @@ module.exports = {
         if (!validDayAndMonth(birthday)) {
             await interaction.reply({
                 content: `Invalid birthdate, remember to type birthdate in the following format: dd/mm`,
+                ephemeral: true,
+            });
+            return;
+        }
+        if (hasBirthdayRegistered(interaction.user.id)) {
+            await interaction.reply({
+                content: `You have already registered a birthdate, use the /changebirthday command to change your birthday!`,
                 ephemeral: true,
             });
             return;
@@ -41,7 +55,7 @@ module.exports = {
             announceBirthday(interaction.client, interaction.user.id);
         }
 
-        const date = formatDate(digits[1] - 1, digits[0]);
+        const date = formatDate(birthdayMonth, birthdayDay);
         await interaction.reply({
             content: `You have set your birthday for the date: ${date}`,
             ephemeral: true,
