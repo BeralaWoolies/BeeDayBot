@@ -85,7 +85,6 @@ const job = new CronJob(
         celebrants.forEach(celebrant => {
             announceBirthday(client, celebrant.id);
         });
-        console.log('new bday');
     },
     null,
     false,
