@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "./node_modules/.bin/nodemon",
     "deploy": "node deployCommands.js",
     "lint": "eslint src main.js deployCommands.js"
   },
@@ -25,6 +25,7 @@
     "dotenv": "^16.0.3"
   },
   "devDependencies": {
-    "eslint": "^8.29.0"
+    "eslint": "^8.29.0",
+    "nodemon": "^2.0.20"
   }
 }
