@@ -71,7 +71,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 // Check birthdays every night at midnight
 const job = new CronJob(
-    '0 8 0 * * *',
+    '0 0 0 * * *',
     function() {
         const now = new Date();
         const data = database.getData();
