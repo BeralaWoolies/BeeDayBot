@@ -46,16 +46,13 @@ module.exports = {
             day: birthdayDay,
         });
         database.setData(data);
-
-        const now = new Date();
         // make sure users setting bday on the day of their bday should also be
         // announced
-        if (hasBirthdayToday(now, birthdayMonth, birthdayDay)) {
+        if (hasBirthdayToday(birthdayMonth, birthdayDay)) {
             announceBirthday(interaction.client, interaction.user.id);
         }
-        const date = formatDate(birthdayMonth, birthdayDay);
         await interaction.reply({
-            content: `You have set your birthday for the date: ${date}`,
+            content: `You have set your birthday for the date: ${formatDate(birthdayMonth, birthdayDay)}`,
             ephemeral: true,
         });
     },

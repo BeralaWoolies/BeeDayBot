@@ -1,8 +1,9 @@
 const database = require('../database.js');
 require('dotenv').config();
 
-exports.hasBirthdayToday = function(date, month, day) {
-    return month === date.getMonth() && day === date.getDate();
+exports.hasBirthdayToday = function(month, day) {
+    const now = new Date();
+    return month === now.getMonth() && day === now.getDate();
 };
 
 exports.announceBirthday = function(client, celebrantId) {
@@ -16,12 +17,17 @@ exports.hasBirthdayRegistered = function(discordId) {
 };
 
 exports.isIdenticalBirthday = function(discordId, birthday) {
-    const { birthdayMonth, birthdayDay } = exports.parseBirthdayString(birthday);
     const data = database.getData();
+    const { birthdayMonth, birthdayDay } = exports.parseBirthdayString(birthday);
     return (data.filter(user =>
         user.id === discordId &&
         user.month === birthdayMonth &&
         user.day === birthdayDay).length !== 0);
+};
+
+exports.getBirthdayFromId = function(discordId) {
+    const data = database.getData();
+    return data.find(user => user.id === discordId);
 };
 
 exports.parseBirthdayString = function(birthday) {
