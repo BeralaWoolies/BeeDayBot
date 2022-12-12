@@ -14,3 +14,20 @@ exports.hasBirthdayRegistered = function(discordId) {
     const data = database.getData();
     return (data.filter(user => user.id === discordId).length !== 0);
 };
+
+exports.isIdenticalBirthday = function(discordId, birthday) {
+    const { birthdayMonth, birthdayDay } = exports.parseBirthdayString(birthday);
+    const data = database.getData();
+    return (data.filter(user =>
+        user.id === discordId &&
+        user.month === birthdayMonth &&
+        user.day === birthdayDay).length !== 0);
+};
+
+exports.parseBirthdayString = function(birthday) {
+    const digits = birthday.split('/').map(digit => parseInt(digit));
+    return {
+        birthdayMonth: digits[1] - 1,
+        birthdayDay: digits[0],
+    };
+};

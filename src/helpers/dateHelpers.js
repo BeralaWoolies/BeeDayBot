@@ -35,9 +35,5 @@ exports.validDayAndMonth = function(date) {
 };
 
 exports.formatDate = function(month, day) {
-    return format(new Date(getCurrentYear(), month, day), "do 'of' LLLL");
+    return format(new Date(new Date().getFullYear(), month, day), "do 'of' LLLL");
 };
-
-function getCurrentYear() {
-    return new Date().getFullYear();
-}

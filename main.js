@@ -1,8 +1,16 @@
-const { Client, GatewayIntentBits, Events, Collection } = require('discord.js');
 const fs = require('node:fs');
 const CronJob = require('cron').CronJob;
 const database = require('./src/database.js');
-const { hasBirthdayToday, announceBirthday } = require('./src/helpers/birthdayHelpers.js');
+const {
+    Client,
+    GatewayIntentBits,
+    Events,
+    Collection
+} = require('discord.js');
+const {
+    hasBirthdayToday,
+    announceBirthday
+} = require('./src/helpers/birthdayHelpers.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -63,7 +71,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 // Check birthdays every night at midnight
 const job = new CronJob(
-    '0 0 0 * * *',
+    '0 8 0 * * *',
     function() {
         const now = new Date();
         const data = database.getData();
@@ -77,6 +85,7 @@ const job = new CronJob(
         celebrants.forEach(celebrant => {
             announceBirthday(client, celebrant.id);
         });
+        console.log('new bday');
     },
     null,
     false,
