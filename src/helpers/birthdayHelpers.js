@@ -7,14 +7,12 @@ const {
     ComponentType,
 } = require('discord.js');
 const { disableAllButtons } = require('./buttonHelpers.js');
-const database = require('../database.js');
+const database = require('../schemas/birthday.js');
 require('dotenv').config();
 
-exports.hasBirthdayToday = function(discordId) {
-    const user = exports.getUserFromId(discordId);
+exports.hasBirthdayToday = function(user) {
     const now = new Date();
-    // Leaplings' bdays will be celebrated on either 1st of March or
-    // 28th of February on non-leap years
+    // celebrate leaplings' bdays on either 28th of February or 1st of March
     if (exports.isLeapling(user.month, user.day) && !isLeapYear(now)) {
         if (user.celebrateBefore) {
             return now.getMonth() === 1 && now.getDate() === 28;
@@ -30,18 +28,15 @@ exports.announceBirthday = function(client, discordId) {
     channel.send(`🥳 HAPPY BIRTHDAY TO <@${discordId}>! 🥳`);
 };
 
-exports.hasBirthdayRegistered = function(discordId) {
-    const data = database.getData();
-    return (data.filter(user => user.id === discordId).length !== 0);
+exports.hasBirthdayRegistered = async function(discordId) {
+    const user = await database.findOne({ discordId: discordId }).exec();
+    return user !== null;
 };
 
-exports.isIdenticalBirthday = function(discordId, birthday) {
-    const data = database.getData();
+exports.isIdenticalBirthday = async function(discordId, birthday) {
+    const user = await database.findOne({ discordId: discordId }).exec();
     const { birthdayMonth, birthdayDay } = exports.parseBirthdayString(birthday);
-    return (data.filter(user =>
-        user.id === discordId &&
-        user.month === birthdayMonth &&
-        user.day === birthdayDay).length !== 0);
+    return user.month === birthdayMonth && user.day === birthdayDay;
 };
 
 exports.parseBirthdayString = function(birthday) {
@@ -52,9 +47,8 @@ exports.parseBirthdayString = function(birthday) {
     };
 };
 
-exports.getUserFromId = function(discordId) {
-    const data = database.getData();
-    return data.find(user => user.id === discordId);
+exports.getUserFromId = async function(discordId) {
+    return await database.findOne({ discordId: discordId }).exec();
 };
 
 exports.isLeapling = function(month, day) {

@@ -11,8 +11,9 @@ const {
     isIdenticalBirthday,
     isLeapling,
     handleLeaplingPreference,
+    getUserFromId,
 } = require('../helpers/birthdayHelpers.js');
-const database = require('../database.js');
+const database = require('../schemas/birthday.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,14 +34,14 @@ module.exports = {
             });
             return;
         }
-        if (!hasBirthdayRegistered(interaction.user.id)) {
+        if (await !hasBirthdayRegistered(interaction.user.id)) {
             await interaction.reply({
                 content: 'You do not have a current set birthdate, use the /addbirthday command to set your birthday',
                 ephemeral: true,
             });
             return;
         }
-        if (isIdenticalBirthday(interaction.user.id, birthday)) {
+        if (await isIdenticalBirthday(interaction.user.id, birthday)) {
             await interaction.reply({
                 content: 'Invalid birthdate, your new birthday is the same as your current birthday',
                 ephemeral: true,
@@ -61,15 +62,12 @@ module.exports = {
             return;
         }
 
-        const data = database.getData();
-        data.forEach(user => {
-            if (user.id === interaction.user.id) {
-                user.month = birthdayMonth;
-                user.day = birthdayDay;
-                user.celebrateBefore = celebrateBefore;
-            }
+        await database.findOneAndReplace({ discordId: interaction.user.id }, {
+            discordId: interaction.user.id,
+            month: birthdayMonth,
+            day: birthdayDay,
+            ...(isLeapling(birthdayMonth, birthdayDay) && { celebrateBefore: celebrateBefore }),
         });
-        database.setData(data);
 
         if (!isLeapling(birthdayMonth, birthdayDay)) {
             await interaction.reply({
@@ -83,7 +81,7 @@ module.exports = {
             });
         }
         // make sure users changing bday on the day of their bday should also be announced
-        if (hasBirthdayToday(interaction.user.id)) {
+        if (hasBirthdayToday(await getUserFromId(interaction.user.id))) {
             announceBirthday(interaction.client, interaction.user.id);
         }
     },

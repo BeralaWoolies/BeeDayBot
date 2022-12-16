@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const CronJob = require('cron').CronJob;
-const database = require('./src/database.js');
+const mongoose = require('mongoose');
 const {
     Client,
     GatewayIntentBits,
@@ -11,6 +11,7 @@ const {
     hasBirthdayToday,
     announceBirthday,
 } = require('./src/helpers/birthdayHelpers.js');
+const database = require('./src/schemas/birthday.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -72,23 +73,20 @@ client.on(Events.InteractionCreate, async (interaction) => {
 // Check birthdays every night at midnight
 const job = new CronJob(
     '0 0 0 * * *',
-    function() {
-        const data = database.getData();
-        const celebrants = data.filter(user =>
-            hasBirthdayToday(user.id)
-        );
-
-        if (celebrants.length === 0) {
-            return;
-        }
-        celebrants.forEach(celebrant => {
-            announceBirthday(client, celebrant.id);
-        });
+    async function() {
+        const users = await database.find();
+        const celebrants = users.filter(user => hasBirthdayToday(user));
+        celebrants.forEach(celebrant => announceBirthday(client, celebrant.discordId));
     },
     null,
     false,
     'Australia/Sydney'
 );
-job.start();
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN).then(() => {
+    mongoose.set('strictQuery', false);
+    mongoose.connect(process.env.MONGO_URI).then(() => {
+        console.log('Successfully connected to the database');
+    }).catch(err => console.log(err));
+    job.start();
+}).catch(err => console.error(err));

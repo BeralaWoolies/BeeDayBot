@@ -10,8 +10,9 @@ const {
     parseBirthdayString,
     isLeapling,
     handleLeaplingPreference,
+    getUserFromId,
 } = require('../helpers/birthdayHelpers.js');
-const database = require(`../database.js`);
+const database = require('../schemas/birthday.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -32,7 +33,7 @@ module.exports = {
             });
             return;
         }
-        if (hasBirthdayRegistered(interaction.user.id)) {
+        if (await hasBirthdayRegistered(interaction.user.id)) {
             await interaction.reply({
                 content: `You have already set a birthdate, use the /changebirthday command to change your birthday!`,
                 ephemeral: true,
@@ -53,14 +54,12 @@ module.exports = {
             return;
         }
 
-        const data = database.getData();
-        data.push({
-            id: interaction.user.id,
+        await database.create({
+            discordId: interaction.user.id,
             month: birthdayMonth,
             day: birthdayDay,
-            celebrateBefore: celebrateBefore,
+            ...(isLeapling(birthdayMonth, birthdayDay) && { celebrateBefore: celebrateBefore }),
         });
-        database.setData(data);
 
         if (!isLeapling(birthdayMonth, birthdayDay)) {
             await interaction.reply({
@@ -74,7 +73,7 @@ module.exports = {
             });
         }
         // make sure users setting bday on the day of their bday should also be announced
-        if (hasBirthdayToday(interaction.user.id)) {
+        if (hasBirthdayToday(await getUserFromId(interaction.user.id))) {
             announceBirthday(interaction.client, interaction.user.id);
         }
     },
