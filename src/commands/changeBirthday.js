@@ -34,7 +34,7 @@ module.exports = {
             });
             return;
         }
-        if (await !hasBirthdayRegistered(interaction.user.id)) {
+        if (!(await hasBirthdayRegistered(interaction.user.id))) {
             await interaction.reply({
                 content: 'You do not have a current set birthdate, use the /addbirthday command to set your birthday',
                 ephemeral: true,
