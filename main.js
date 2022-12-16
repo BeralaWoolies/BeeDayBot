@@ -5,11 +5,11 @@ const {
     Client,
     GatewayIntentBits,
     Events,
-    Collection
+    Collection,
 } = require('discord.js');
 const {
     hasBirthdayToday,
-    announceBirthday
+    announceBirthday,
 } = require('./src/helpers/birthdayHelpers.js');
 require('dotenv').config();
 
@@ -73,10 +73,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 const job = new CronJob(
     '0 0 0 * * *',
     function() {
-        const now = new Date();
         const data = database.getData();
         const celebrants = data.filter(user =>
-            hasBirthdayToday(now, user.month, user.day)
+            hasBirthdayToday(user.id)
         );
 
         if (celebrants.length === 0) {
