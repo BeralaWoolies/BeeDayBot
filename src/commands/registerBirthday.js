@@ -42,7 +42,7 @@ module.exports = {
 
         const { birthdayMonth, birthdayDay } = parseBirthdayString(birthday);
 
-        // ask leaplings if they want to celebrate birthday on the 28th of February or 1st of March in non-leap years
+        // allow leaplings to choose if they want to celebrate birthday on the 28th of February or 1st of March on non-leap years
         const { celebrateBefore, leaplingBirthday } = await handleLeaplingPreference(interaction, birthdayMonth, birthdayDay);
         if (isLeapling(birthdayMonth, birthdayDay) && celebrateBefore === null && leaplingBirthday === null) {
             await interaction.editReply({
@@ -73,8 +73,7 @@ module.exports = {
                 ephemeral: true,
             });
         }
-        // make sure users setting bday on the day of their bday should also be
-        // announced
+        // make sure users setting bday on the day of their bday should also be announced
         if (hasBirthdayToday(interaction.user.id)) {
             announceBirthday(interaction.client, interaction.user.id);
         }
