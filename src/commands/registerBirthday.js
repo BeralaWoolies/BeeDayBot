@@ -42,7 +42,7 @@ module.exports = {
         }
 
         const { birthdayMonth, birthdayDay } = parseBirthdayString(birthday);
-
+        console.log('gangsta');
         // allow leaplings to choose if they want to celebrate birthday on the 28th of February or 1st of March on non-leap years
         const { celebrateBefore, leaplingBirthday } = await handleLeaplingPreference(interaction, birthdayMonth, birthdayDay);
         if (isLeapling(birthdayMonth, birthdayDay) && celebrateBefore === null && leaplingBirthday === null) {

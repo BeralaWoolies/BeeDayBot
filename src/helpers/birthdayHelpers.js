@@ -11,7 +11,7 @@ const database = require('../schemas/birthday.js');
 require('dotenv').config();
 
 exports.hasBirthdayToday = function(user) {
-    const now = new Date();
+    const now = new Date().toLocaleString('en-US', { timeZone: 'Australia/Sydney' });
     // celebrate leaplings' bdays on either 28th of February or 1st of March
     if (exports.isLeapling(user.month, user.day) && !isLeapYear(now)) {
         if (user.celebrateBefore) {
