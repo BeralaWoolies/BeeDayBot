@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const {
     validDayAndMonth,
     formatDate,
@@ -27,25 +27,27 @@ module.exports = {
     async execute(interaction) {
         const birthday = interaction.options.getString('birthdate');
         if (!validDayAndMonth(birthday)) {
+            const errorEmbed = new EmbedBuilder()
+                .setColor(0xFF0000)
+                .setTitle('Error')
+                .setDescription('Invalid birthdate, remember to type birthdate in the following format: **dd/mm**')
+                .addFields([
+                    { name: 'Example Usage for 4th of April:', value: '`04/04`' },
+                ])
+                .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
             await interaction.reply({
-                content: `Invalid birthdate, remember to type birthdate in the following format: dd/mm`,
                 ephemeral: true,
-            });
-            return;
-        }
-        if (await hasBirthdayRegistered(interaction.user.id)) {
-            await interaction.reply({
-                content: `You have already set a birthdate, use the /changebirthday command to change your birthday!`,
-                ephemeral: true,
+                embeds: [errorEmbed],
             });
             return;
         }
 
+        const isBirthdayChange = await hasBirthdayRegistered(interaction.user.id);
         const { birthdayMonth, birthdayDay } = parseBirthdayString(birthday);
 
         // allow leaplings to choose if they want to celebrate birthday on the 28th of February or 1st of March on non-leap years
         const { celebrateBefore, leaplingBirthday } = await handleLeaplingPreference(interaction, birthdayMonth, birthdayDay);
-        if (isLeapling(birthdayMonth, birthdayDay) && celebrateBefore === null && leaplingBirthday === null) {
+        if (isLeapling(birthdayMonth, birthdayMonth) && celebrateBefore === null && leaplingBirthday === null) {
             await interaction.editReply({
                 content: 'You have timed out because you have not selected an option, use the /addbirthday command again to set your birthdate',
                 ephemeral: true,
@@ -54,27 +56,69 @@ module.exports = {
             return;
         }
 
-        await database.create({
-            discordId: interaction.user.id,
-            month: birthdayMonth,
-            day: birthdayDay,
-            ...(isLeapling(birthdayMonth, birthdayDay) && { celebrateBefore: celebrateBefore }),
-        });
+        let resets = 0;
+        if (isBirthdayChange) {
+            const user = await database.findOne({ discordId: interaction.user.id }).exec();
+            const newResets = user.resets - 1;
+            if (newResets >= 0) {
+                await database.findOneAndReplace({ discordId: interaction.user.id }, {
+                    discordId: interaction.user.id,
+                    month: birthdayMonth,
+                    day: birthdayDay,
+                    ...(isLeapling(birthdayMonth, birthdayDay) && { celebrateBefore: celebrateBefore }),
+                    resets: newResets,
+                });
+                resets = newResets;
+            } else {
+                const errorEmbed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('Error')
+                    .setDescription('You have **0** birthday resets and cannot change your birthday anymore')
+                    .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
+                await interaction.reply({
+                    ephemeral: true,
+                    embeds: [errorEmbed],
+                });
+                return;
+            }
+        } else {
+            const baseResets = 10;
+            await database.create({
+                discordId: interaction.user.id,
+                month: birthdayMonth,
+                day: birthdayDay,
+                ...(isLeapling(birthdayMonth, birthdayDay) && { celebrateBefore: celebrateBefore }),
+                resets: baseResets,
+            });
+            resets = baseResets;
+        }
+
+        const description = isLeapling(birthdayMonth, birthdayDay)
+            ? `You have set your birthday for the date: **29th of February** and **${leaplingBirthday}** on **non-leap** years`
+            : `You have set your birthday for the date: **${formatDate(birthdayMonth, birthdayDay)}**`;
+        const successEmbed = new EmbedBuilder()
+            .setColor(0x9AFF00)
+            .setTitle('🎉 Birthday Confirmation 🎉')
+            .setDescription(description)
+            .addFields([
+                { name: '**Remaining Resets**', value: `${resets}` },
+            ])
+            .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
 
         if (!isLeapling(birthdayMonth, birthdayDay)) {
             await interaction.reply({
-                content: `You have set your birthday for the date: ${formatDate(birthdayMonth, birthdayDay)}`,
                 ephemeral: true,
+                embeds: [successEmbed],
             });
         } else {
             await interaction.followUp({
-                content: `You have set your birthday for the date: 29th of February and ${leaplingBirthday} on non-leap years`,
                 ephemeral: true,
+                embeds: [successEmbed],
             });
         }
         // make sure users setting bday on the day of their bday should also be announced
         if (hasBirthdayToday(await getUserFromId(interaction.user.id))) {
-            announceBirthday(interaction.client, interaction.user.id);
+            await announceBirthday(interaction.client, interaction.user.id);
         }
     },
 };

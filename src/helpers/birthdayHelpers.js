@@ -24,9 +24,19 @@ exports.hasBirthdayToday = function(user) {
     return user.month === now.getMonth() && user.day === now.getDate();
 };
 
-exports.announceBirthday = function(client, discordId) {
+exports.announceBirthday = async function(client, discordId) {
     const channel = client.channels.cache.get(process.env.CHANNEL_ID);
-    channel.send(`🥳 HAPPY BIRTHDAY TO <@${discordId}>! 🥳`);
+    const birthdayAnnouncement = `🥳 @everyone HAPPY BIRTHDAY TO <@${discordId}>! 🥳`;
+    channel.send(birthdayAnnouncement)
+        .then(async sentMsg => {
+            const reactions = ['🎉', '🎂', '🥳', '🎊', '🎈'];
+            for (const emoji of reactions) {
+                await sentMsg.react(emoji);
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 };
 
 exports.hasBirthdayRegistered = async function(discordId) {

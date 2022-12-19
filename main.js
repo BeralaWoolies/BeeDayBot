@@ -76,17 +76,23 @@ const job = new CronJob(
     async function() {
         const users = await database.find();
         const celebrants = users.filter(user => hasBirthdayToday(user));
-        celebrants.forEach(celebrant => announceBirthday(client, celebrant.discordId));
+        for (const celebrant of celebrants) {
+            await announceBirthday(client, celebrant.discordId);
+        }
     },
     null,
     false,
     'Australia/Sydney'
 );
 
-client.login(process.env.DISCORD_TOKEN).then(() => {
-    mongoose.set('strictQuery', false);
-    mongoose.connect(process.env.MONGO_URI).then(() => {
-        console.log('Successfully connected to the database');
-    }).catch(err => console.log(err));
-    job.start();
-}).catch(err => console.error(err));
+client.login(process.env.DISCORD_TOKEN)
+    .then(() => {
+        mongoose.set('strictQuery', false);
+        mongoose.connect(process.env.MONGO_URI)
+            .then(() => {
+                console.log('Successfully connected to the database');
+            })
+            .catch(err => console.log(err));
+        job.start();
+    })
+    .catch(err => console.error(err));

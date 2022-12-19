@@ -16,6 +16,10 @@ const birthdaySchema = new Schema({
         type: Boolean,
         required: false,
     },
+    resets: {
+        type: Number,
+        required: true,
+    }
 });
 
 module.exports = model('birthday', birthdaySchema, 'birthdays');
