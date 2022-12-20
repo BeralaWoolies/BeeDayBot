@@ -5,6 +5,7 @@ const {
     ButtonBuilder,
     ButtonStyle,
     ComponentType,
+    EmbedBuilder,
 } = require('discord.js');
 const { disableAllButtons } = require('./buttonHelpers.js');
 const database = require('../schemas/birthday.js');
@@ -26,8 +27,16 @@ exports.hasBirthdayToday = function(user) {
 
 exports.announceBirthday = async function(client, discordId) {
     const channel = client.channels.cache.get(process.env.CHANNEL_ID);
-    const birthdayAnnouncement = `🥳 @everyone HAPPY BIRTHDAY TO <@${discordId}>! 🥳`;
-    channel.send(birthdayAnnouncement)
+    const celebrant = await client.users.fetch(discordId);
+    const birthdayEmbed = new EmbedBuilder()
+        .setColor(0x3AFF00)
+        .setDescription(`🥳 HAPPY BIRTHDAY TO <@${discordId}> 🥳`)
+        .setAuthor({ name: celebrant.username, iconURL: celebrant.avatarURL() })
+        .setImage('https://media.tenor.com/OHvOS2IflHMAAAAC/birthday-surprised.gif');
+    channel.send({
+        content: '@everyone',
+        embeds: [birthdayEmbed],
+    })
         .then(async sentMsg => {
             const reactions = ['🎉', '🎂', '🥳', '🎊', '🎈'];
             for (const emoji of reactions) {
@@ -82,10 +91,16 @@ exports.handleLeaplingPreference = async function(interaction, birthdayMonth, bi
                     .setStyle(ButtonStyle.Primary)
             );
 
+        const leaplingEmbed = new EmbedBuilder()
+            .setColor(0xA500FF)
+            .setTitle('👋 **Hello leapling!** 👋')
+            .setDescription('Would you like to celebrate your birthday on the **28th of February** or **1st of March** on **non-leap** years')
+            .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
+
         const message = await interaction.reply({
-            content: 'Hello leapling! would you like to celebrate your birthday on the 28th of February or 1st of March on non-leap years',
             ephemeral: true,
             components: [row],
+            embeds: [leaplingEmbed],
             fetchReply: true,
         });
 
@@ -106,13 +121,16 @@ exports.handleLeaplingPreference = async function(interaction, birthdayMonth, bi
                 }
                 disableAllButtons(row);
                 await interaction.editReply({
-                    content: 'Hello leapling! would you like to celebrate your birthday on the 28th of February or 1st of March on non-leap years.',
                     ephemeral: true,
                     components: [row],
                 });
+                const processingEmbed = new EmbedBuilder()
+                    .setColor(0xA500FF)
+                    .setDescription('**Processing...**')
+                    .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
                 await interaction.followUp({
-                    content: 'Processing...',
                     ephemeral: true,
+                    embeds: [processingEmbed],
                 });
             }
         });
@@ -122,4 +140,12 @@ exports.handleLeaplingPreference = async function(interaction, birthdayMonth, bi
         celebrateBefore: celebrateBefore,
         leaplingBirthday: leaplingBirthday,
     };
+};
+
+exports.handleBirthdayResets = async function(interaction, isBirthdayChange) {
+    if (!isBirthdayChange) {
+        return 10;
+    }
+    const user = await exports.getUserFromId(interaction.user.id);
+    return user.resets - 1;
 };
