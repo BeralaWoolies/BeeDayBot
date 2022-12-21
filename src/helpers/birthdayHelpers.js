@@ -14,7 +14,8 @@ require('dotenv').config();
 exports.hasBirthdayToday = function(user) {
     const sydneyDateStr = new Date().toLocaleString('en-US', { timeZone: 'Australia/Sydney' });
     const now = new Date(sydneyDateStr);
-    // celebrate leaplings' bdays on either 28th of February or 1st of March
+
+    // celebrate leaplings' birthday on either 28th of February or 1st of March
     if (exports.isLeapling(user.month, user.day) && !isLeapYear(now)) {
         if (user.celebrateBefore) {
             return now.getMonth() === 1 && now.getDate() === 28;
@@ -26,26 +27,26 @@ exports.hasBirthdayToday = function(user) {
 };
 
 exports.announceBirthday = async function(client, discordId) {
-    const channel = client.channels.cache.get(process.env.CHANNEL_ID);
-    const celebrant = await client.users.fetch(discordId);
-    const birthdayEmbed = new EmbedBuilder()
-        .setColor(0x3AFF00)
-        .setDescription(`🥳 HAPPY BIRTHDAY TO <@${discordId}> 🥳`)
-        .setAuthor({ name: celebrant.username, iconURL: celebrant.avatarURL() })
-        .setImage('https://media.tenor.com/OHvOS2IflHMAAAAC/birthday-surprised.gif');
-    channel.send({
-        content: '@everyone',
-        embeds: [birthdayEmbed],
-    })
-        .then(async sentMsg => {
-            const reactions = ['🎉', '🎂', '🥳', '🎊', '🎈'];
-            for (const emoji of reactions) {
-                await sentMsg.react(emoji);
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+    try {
+        const channel = client.channels.cache.get(process.env.CHANNEL_ID);
+        const celebrant = await client.users.fetch(discordId);
+        const birthdayEmbed = new EmbedBuilder()
+            .setColor(0x3AFF00)
+            .setDescription(`🥳 HAPPY BIRTHDAY TO <@${discordId}> 🥳`)
+            .setAuthor({ name: celebrant.username, iconURL: celebrant.avatarURL() });
+        channel.send({ content: '@everyone', embeds: [birthdayEmbed] })
+            .then(async sentMsg => {
+                const reactions = ['🎉', '🎂', '🥳', '🎊', '🎈'];
+                for (const emoji of reactions) {
+                    await sentMsg.react(emoji);
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 exports.hasBirthdayRegistered = async function(discordId) {
@@ -90,13 +91,11 @@ exports.handleLeaplingPreference = async function(interaction, birthdayMonth, bi
                     .setLabel('1st of March!')
                     .setStyle(ButtonStyle.Primary)
             );
-
         const leaplingEmbed = new EmbedBuilder()
             .setColor(0xA500FF)
             .setTitle('👋 **Hello leapling!** 👋')
             .setDescription('Would you like to celebrate your birthday on the **28th of February** or **1st of March** on **non-leap** years')
             .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
-
         const message = await interaction.reply({
             ephemeral: true,
             components: [row],
@@ -119,11 +118,13 @@ exports.handleLeaplingPreference = async function(interaction, birthdayMonth, bi
                     leaplingBirthday = '1st of March';
                     celebrateBefore = false;
                 }
+
                 disableAllButtons(row);
                 await interaction.editReply({
                     ephemeral: true,
                     components: [row],
                 });
+
                 const processingEmbed = new EmbedBuilder()
                     .setColor(0xA500FF)
                     .setDescription('**Processing...**')

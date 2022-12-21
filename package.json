@@ -2,12 +2,12 @@
   "name": "discordbot",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node index.js",
     "nodemon": "./node_modules/.bin/nodemon",
     "deploy": "node deployCommands.js",
-    "lint": "eslint src main.js deployCommands.js"
+    "lint": "eslint src index.js deployCommands.js"
   },
   "repository": {
     "type": "git",

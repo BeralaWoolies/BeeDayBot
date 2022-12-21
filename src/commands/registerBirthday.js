@@ -1,4 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const {
+    SlashCommandBuilder,
+    EmbedBuilder,
+} = require('discord.js');
 const {
     validDayAndMonth,
     formatDate,
@@ -150,7 +153,7 @@ module.exports = {
             });
         }
 
-        // make sure users setting bday on the day of their bday should also be announced
+        // make sure users setting their birthday on the day of their birthday should also be announced
         if (hasBirthdayToday(await getUserFromId(interaction.user.id))) {
             await announceBirthday(interaction.client, interaction.user.id);
         }
