@@ -18,7 +18,7 @@ module.exports = {
             await mongoose.connect(process.env.MONGO_URI);
             console.log('Successfully connected to the database');
 
-            // Check birthdays every night at midnight
+            // Check birthdays every day at midnight
             const job = new CronJob(
                 '0 0 0 * * *',
                 async function() {

@@ -41,8 +41,8 @@ exports.announceBirthday = async function(client, discordId) {
                     await sentMsg.react(emoji);
                 }
             })
-            .catch((err) => {
-                console.error(err);
+            .catch((error) => {
+                console.error(error);
             });
     } catch (error) {
         console.error(error);
@@ -94,7 +94,7 @@ exports.handleLeaplingPreference = async function(interaction, birthdayMonth, bi
         const leaplingEmbed = new EmbedBuilder()
             .setColor(0xA500FF)
             .setTitle('👋 **Hello leapling!** 👋')
-            .setDescription('Would you like to celebrate your birthday on the **28th of February** or **1st of March** on **non-leap** years')
+            .setDescription('Would you like to celebrate your birthday on the **28th of February** or **1st of March** during **non-leap** years')
             .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
         const message = await interaction.reply({
             ephemeral: true,

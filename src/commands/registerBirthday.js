@@ -56,10 +56,7 @@ module.exports = {
                 .setTitle('Error: Invalid Birthdate')
                 .setDescription('Remember to type birthdate in the following format: **dd/mm**')
                 .addFields([
-                    {
-                        name: 'Example Usage for 4th of April:',
-                        value: '`04/04`'
-                    },
+                    { name: 'Example Usage for 4th of April:', value: '`04/04`' },
                 ])
                 .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
             await interaction.reply({
@@ -89,7 +86,7 @@ module.exports = {
         serve(interaction.user.id);
         const { birthdayMonth, birthdayDay } = parseBirthdayString(birthday);
 
-        // allow leaplings to choose if they want to celebrate their birthday on the 28th of February or 1st of March on non-leap years
+        // allow leaplings to choose if they want to celebrate their birthday on the 28th of February or 1st of March during non-leap years
         const leapling = isLeapling(birthdayMonth, birthdayDay);
         const { celebrateBefore, leaplingBirthday } = await handleLeaplingPreference(interaction, birthdayMonth, birthdayDay);
         if (leapling && celebrateBefore === null && leaplingBirthday === null) {
@@ -128,17 +125,14 @@ module.exports = {
 
         // generate dynamic description for embed based on if the user was a leapling or not
         const description = (leapling === true)
-            ? `You have set your birthday for the date: **29th of February** and **${leaplingBirthday}** on **non-leap** years`
+            ? `You have set your birthday for the date: **29th of February** and **${leaplingBirthday}** during **non-leap** years`
             : `You have set your birthday for the date: **${formatDate(birthdayMonth, birthdayDay)}**`;
         const successEmbed = new EmbedBuilder()
             .setColor(0x9AFF00)
             .setTitle('🎉 Birthday Confirmation 🎉')
             .setDescription(description)
             .addFields([
-                {
-                    name: '**Remaining birthday resets**',
-                    value: `${birthdayResets}`
-                },
+                { name: '**Remaining birthday resets**', value: `${birthdayResets}` },
             ])
             .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
         if (leapling) {

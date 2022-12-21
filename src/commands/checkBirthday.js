@@ -35,17 +35,14 @@ module.exports = {
 
         // generate dynamic description for embed based on if the user was a leapling or not
         const description = (leapling === true)
-            ? `Your birthday is currently set for the date: **29th of February** and **${nonLeapYearDate}** on **non-leap** years`
+            ? `Your birthday is currently set for the date: **29th of February** and **${nonLeapYearDate}** during **non-leap** years`
             : `Your birthday is currently set for the date: **${formatDate(user.month, user.day)}**`;
         const successEmbed = new EmbedBuilder()
             .setColor(0xFF9500)
             .setTitle('🎂 Birthday Check 🎂')
             .setDescription(description)
             .addFields([
-                {
-                    name: '**Remaining birthday resets**',
-                    value: `${user.resets}`
-                },
+                { name: '**Remaining birthday resets**', value: `${user.resets}` },
             ])
             .setAuthor({ name: interaction.client.user.username, iconURL: interaction.client.user.avatarURL() });
         await interaction.reply({
