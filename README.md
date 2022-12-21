@@ -5,7 +5,7 @@ A discord bot that helps users celebrate their birthdays.
 
 ## About The Project
 
-This is a personal project I built with the aim of helping my friends celebrate their birthdays in our discord server. The main goal of this project was to develop and deploy a discord bot that could track everyones birthdays in a database and automatically announce them on their respective days whilst also learning discord.js and MongoDb.
+This is a personal project I built with the aim of helping my friends celebrate their birthdays in our discord server. The main goal of this project was to develop and deploy a discord bot that could track everyones birthdays in a database and automatically announce them on their respective days whilst also learning discord.js and MongoDB.
 
 ## Built With
 - [Node.js](https://nodejs.org/en/)
