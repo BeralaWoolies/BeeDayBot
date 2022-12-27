@@ -50,14 +50,8 @@ exports.announceBirthday = async function(client, discordId) {
 };
 
 exports.hasBirthdayRegistered = async function(discordId) {
-    const user = await database.findOne({ discordId: discordId }).exec();
+    const user = await exports.getUserFromId(discordId);
     return user !== null;
-};
-
-exports.isIdenticalBirthday = async function(discordId, birthday) {
-    const user = await database.findOne({ discordId: discordId }).exec();
-    const { birthdayMonth, birthdayDay } = exports.parseBirthdayString(birthday);
-    return user.month === birthdayMonth && user.day === birthdayDay;
 };
 
 exports.parseBirthdayString = function(birthday) {

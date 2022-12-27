@@ -26,7 +26,6 @@ exports.validDayAndMonth = function(date) {
         // dd must be in the range 1-29/30/31
         const key = Object.keys(daysInAMonthLookUp)[digits[1] - 1];
         if (digits[0] < 1 || digits[0] > daysInAMonthLookUp[key]) {
-            console.log(`${key} does not have ${digits[0]} days`);
             return false;
         }
         return true;
